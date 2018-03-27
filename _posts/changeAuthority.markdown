@@ -2,7 +2,7 @@
 layout: post
 title:  "Mac系统下使用chmod命令修改文件权限"
 date:   2018-3-27 14:38:20 +0800
-categories: Mac
+categories: test
 ---
 [TOC]
 
