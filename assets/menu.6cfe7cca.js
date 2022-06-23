@@ -1,0 +1,1 @@
+import{h as e}from"./index.1257e8b0.js";function n(t){return e.request({url:"/sysEnts/showTree?sysType="+t,method:"get"})}function r(t){return e.request({url:"/sysEnts",method:"post",data:t})}function u(t){return e.request({url:"/sysEnts/"+t.entId,method:"put",data:t})}function o(t){return e.request({url:"/sysEnts/"+t,method:"delete"})}export{r as a,o as d,n as g,u};
