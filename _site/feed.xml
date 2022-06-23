@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Ted4kra</title>
+    <description>欢迎来到我的个人站~</description>
+    <link>http://localhost:4000/</link>
+    <atom:link href="http://localhost:4000/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Thu, 18 Jul 2019 21:26:24 +0800</pubDate>
+    <lastBuildDate>Thu, 18 Jul 2019 21:26:24 +0800</lastBuildDate>
+    <generator>Jekyll v3.8.5</generator>
+    
+      <item>
+        <title>Flutter构建一个透明背景的Widget</title>
+        <description>&lt;p&gt;想做一个如下图这样透明背景的widget，但是正常push出来的，在最根部的Container设置成Colors.transparent,页面也不是透明的。
+本文记录的是造出来这个页面的历程；看代码的直接&lt;a href=&quot;https://github.com/Ted4kra/popupView&quot;&gt;点这里&lt;/a&gt;
+&lt;img src=&quot;/images/popupview/want.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+&lt;h3 id=&quot;1-先展示出来&quot;&gt;1. 先展示出来&lt;/h3&gt;
+&lt;p&gt;经过不懈努力，终于试出来一个方法(真的是试出来的😢😢)：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Dart&quot;&gt; showCupertinoModalPopup(
+    context: context, 
+    builder: (_) =&amp;gt; FeedBackPage()
+ );
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;使用这个方法push出来的页面，默认就是透明背景的。当然，这个Cupertino对应的Material方法是：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-Dart&quot;&gt;showDialog(
+    context: context, 
+    builder: (_) =&amp;gt; FeedBackPage()
+);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;但是showDialog比showCupertinoModalPopup出来的页面要低一点,而且showCupertinoModalPopup默认的动画更明显一点(本人太菜，还不会手写动画🌚🌚)：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Dart&quot;&gt;onPressed: () {
+   showCupertinoModalPopup(context: context, builder: (_) =&amp;gt; FeedBackPage());
+   showDialog(context: context, builder: (_) =&amp;gt; FeedBackPage());
+},
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;&lt;img src=&quot;/images/popupview/different.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+&lt;h3 id=&quot;2在show出来的widget上添加东西&quot;&gt;2.在show出来的widget上添加东西&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Dart&quot;&gt;class _FeedBackPageState extends State&amp;lt;FeedBackPage&amp;gt; {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        color: Colors.white,
+        width: 300,
+        height: 300,
+        child: Center(
+          child: Text(&quot;这里是文字啊&quot;),
+        ),
+      ),
+    );
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;首先把代码写成这个样子，先只是展示一个Text，出来的是这个样子。
+💢💢这什么玩意，我没有对Text进行任何设置，怎么就有样式了。我观望flutter半年的，一般情况下，加上一个Scaffold就能解决问题；结果呢，加上Scaffold之后就不会是透明的了，不信你试试。&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/popupview/default.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;先不管这个，直接再添加一个TextField上去：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;class _FeedBackPageState extends State&amp;lt;FeedBackPage&amp;gt; {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        color: Colors.white,
+        width: 300,
+        height: 300,
+        child: Column(
+          children: &amp;lt;Widget&amp;gt;[
+            Text(&quot;这里是文字啊&quot;),
+            TextField()
+          ],
+        ),
+      ),
+    );
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;然后，em…噩梦👿👿&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/popupview/error.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;按照我开发flutter两周的经验，这个错误还是可以通过加一个Scaffold解决。💢💢
+这时的控制台：&lt;/p&gt;
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;flutter: The following assertion was thrown building TextField(dirty, state: _TextFieldState#c1f8e):
+flutter: No Material widget found.
+flutter: TextField widgets require a Material widget ancestor.
+flutter: In material design, most widgets are conceptually &quot;printed&quot; on a sheet of material. In Flutter's
+flutter: material library, that material is represented by the Material widget. It is the Material widget
+flutter: that renders ink splashes, for instance. Because of this, many material library widgets require that
+flutter: there be a Material widget in the tree above them.
+flutter: To introduce a Material widget, you can either directly include one, or use a widget that contains
+flutter: Material itself, such as a Card, Dialog, Drawer, or Scaffold.
+flutter: The specific widget that could not find a Material ancestor was:
+flutter:   TextField
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;看了控制台，心情舒爽多了；&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;To introduce a Material widget, you can either directly include one, or use a widget that contains Material itself, such as a Card, Dialog, Drawer, or Scaffold.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;这里的such as，除了Scaffold，还是有Card，Dialog，Drawer；很显然，Card很适合我们😄😄(虽然Card可能不是这么用的，但是，反正能这么实现)；于是改代码,顺便调整一个嵌套结构,加了一个close按钮：&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-Dart&quot;&gt;class _FeedBackPageState extends State&amp;lt;FeedBackPage&amp;gt; {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        color: Colors.white,
+        width: 300,
+        height: 300,
+        child: Card(
+          child: Column(
+            children: &amp;lt;Widget&amp;gt;[
+              Text(&quot;这里是文字啊&quot;),
+              TextField(),
+              IconButton(
+                icon: Icon(
+                  Icons.close,
+                  size: 35,
+                ),
+                onPressed: () =&amp;gt; Navigator.pop(context),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这时候界面是这样的：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/images/popupview/normal.png&quot; alt=&quot;img&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;嗯，界面忽然就可爱多了🐶。&lt;/p&gt;
+
+&lt;h3 id=&quot;3下一步以为可以处理细节了&quot;&gt;3.下一步，以为可以处理细节了：&lt;/h3&gt;
+&lt;p&gt;TextField设置多行，此时键盘上默认的是换行，所以加一个失去焦点的方法,同时在最外层套一个GestureDetector&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-Dart&quot;&gt;class _FeedBackPageState extends State&amp;lt;FeedBackPage&amp;gt; {
+  TextEditingController contentController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: ()=&amp;gt; endEditing(),
+      child: Center(...),
+    );
+  }
+
+  endEditing() {
+    FocusScope.of(context).requestFocus(FocusNode());
+  }
+}
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这时，无意间点了透明的地方，这个玩意自己pop了😭😭。无奈，在最外层又添加了一个全屏的透明的Container：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&quot;language-Dart&quot;&gt;class _FeedBackPageState extends State&amp;lt;FeedBackPage&amp;gt; {
+  TextEditingController contentController = TextEditingController();
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: ()=&amp;gt; endEditing(),
+      child: Container(
+        color: Colors.transparent,
+        child: body(),
+      ),
+    );
+  }
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;这样，点起来看似舒服多了；&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;在公司写的时候，无意间发现，点击屏幕边缘的时候，还是会自动的pop，但是重新写一遍就没了？？？？[黑人问号脸.jpg]
+如果你遇到了，可以在最外层添加一层Material，并设置type为MaterialType.transparency,如果没遇见，当我没说..溜了溜了。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;4下一个内容&quot;&gt;4.下一个内容&lt;/h3&gt;
+&lt;p&gt;接下来就是键盘遮挡TextField的问题了，理想状态应该是，键盘弹出来之后，白色的widget是可以上下滑动的，但是没有实现出来🌚🌚；只是加了一个bottom的Margin，让Card在中心靠上的合适位置显示了；等实现了再更新吧。
+最后的效果和&lt;a href=&quot;https://github.com/Ted4kra/popupView&quot;&gt;代码&lt;/a&gt;：
+&lt;img src=&quot;/images/popupview/done.gif&quot; alt=&quot;gif&quot; /&gt;&lt;/p&gt;
+
+</description>
+        <pubDate>Wed, 17 Jul 2019 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2019/07/widget/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/07/widget/</guid>
+        
+        <category>flutter，半透明背景</category>
+        
+        
+      </item>
+    
+      <item>
+        <title>Mac系统下使用chmod命令修改文件权限</title>
+        <description>&lt;p&gt;自动打包的时候，创建的./xcodebuild.sh文件执行的时候出现&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;-bash: ./build.sh: Permission denied&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;是权限不足导致的。Mac终端修改文件权限使用的是chmod命令。可以直接通过 &lt;strong&gt;man chmod&lt;/strong&gt; 在终端工具上查看该命令的帮助手册。&lt;/p&gt;
+
+&lt;h2 id=&quot;查看文件的权限&quot;&gt;查看文件的权限&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;ls -l&lt;/strong&gt; 命令可以查看当前目录下所有文件的访问权限，也可以查看指定文件。任意新建一个 &lt;strong&gt;build.sh&lt;/strong&gt; 文件，查看该文件的权限：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;biubiubiu:Desktop jsyl$ ls -l build.sh
+-rw-r--r--  1 jsyl  staff  0  3 14 10:09 build.sh
+
+biubiubiu:~ jsyl$ ls -l /Users/jsyl/Desktop
+total 38976
+drwxr-xr-x@  8 jsyl  staff       272  1 23 12:18 (iOS)S2iCodeModule_v2.4.0
+-rw-r--r--@  1 jsyl  staff    199471  3  9 15:25 5c95d50c5d2c.gif
+drwxr-xr-x  10 jsyl  staff       340  2  1 09:19 视频录制
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;打印出来的是就是当前文件的信息，如果查看的是文件夹，将输出文件夹下所有文件的信息。
+文件信息含义对应解释如下：&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;-rw-r–r–&lt;/th&gt;
+      &lt;th&gt;1&lt;/th&gt;
+      &lt;th&gt;jsyl&lt;/th&gt;
+      &lt;th&gt;staff&lt;/th&gt;
+      &lt;th&gt;0&lt;/th&gt;
+      &lt;th&gt;3 14 10:09&lt;/th&gt;
+      &lt;th&gt;build.sh&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;文件类型和访问权限&lt;/td&gt;
+      &lt;td&gt;文件数量&lt;/td&gt;
+      &lt;td&gt;所属用户&lt;/td&gt;
+      &lt;td&gt;所在群组&lt;/td&gt;
+      &lt;td&gt;文件大小&lt;/td&gt;
+      &lt;td&gt;修改日期&lt;/td&gt;
+      &lt;td&gt;文件名称&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;对 &lt;strong&gt;-rw-r–r–&lt;/strong&gt; 的详细说明：&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;第一个符号代表文件类型，‘-’ 符号表示该文件为非目录类型，‘d’ 符号表示目录类型；&lt;/li&gt;
+  &lt;li&gt;后面9个字母分为三组“rw- r– r–”，每组对应的是所属用户(user)、所属用户所在组(group)、其他用户(other)对该文件的访问权限；每组中的三个字符分别对应用户对该文件用户的权限：可读(read)、可写(write)、可执行(excute);如果应有所有权限就是 &lt;strong&gt;rwx&lt;/strong&gt; ；如果没有权限就是用 &lt;strong&gt;-&lt;/strong&gt; 表示；&lt;/li&gt;
+  &lt;li&gt;有的文件类型后面会多一个&lt;strong&gt;@&lt;/strong&gt;，形如&lt;strong&gt;-rwxrwxrwx@&lt;/strong&gt;，@符号表示文件拓展属性，属于文件系统的一个功能&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;修改访问权限&quot;&gt;修改访问权限&lt;/h2&gt;
+&lt;h3 id=&quot;直接修改&quot;&gt;直接修改&lt;/h3&gt;
+&lt;p&gt;根据上面查看权限的介绍，修改权限也应该包括 访问用户、添加或取消操作、具体权限和访问文件，语法格式：&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;chmod [who] [opt] [mode] 文件/目录名 
+chmod 用户+操作+权限 文件&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;用户 who：使用字母&lt;strong&gt;u&lt;/strong&gt;代表拥有者(user)、字母&lt;strong&gt;g&lt;/strong&gt;代表拥有者所在群组(group)、字母&lt;strong&gt;o&lt;/strong&gt;代表其他用户(other)、字母&lt;strong&gt;a&lt;/strong&gt;表示所有用户(all,包含前面的三种用户)&lt;/li&gt;
+  &lt;li&gt;操作 opt：“+”表示增加权限，“-”表示取消权限，“=”表示赋值权限，取消原有权限&lt;/li&gt;
+  &lt;li&gt;权限 mode：“r” 符号表示可读(read)，“w” 表示可写(write)，“x” 表示可执行权限(execute)&lt;/li&gt;
+  &lt;li&gt;文件：如果不指定文件名，表示操作对象为当前目录下的所有文件&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;以前面buil.sh文件为例，将拥有着所在群组和其他用户改为&lt;strong&gt;可读可写可执行&lt;/strong&gt;权限的方式：&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;biubiubiu:Desktop jsyl$ chmod go+rwx build.sh
+biubiubiu:Desktop jsyl$ ls -l build.sh
+-rw-rwxrwx  1 jsyl  staff  0  3 14 10:09 build.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;更复杂一点，可以同时添加多种操作，操作之间使用“,”隔开就行
+user拥有所有权限，other没有任何权限，group取消执行权限&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;biubiubiu:Desktop jsyl$ chmod u+rwx,o-rwx,g-x build.sh
+biubiubiu:Desktop jsyl$ ls -l build.sh
+-rwxrw----  1 jsyl  staff  0  3 14 10:09 build.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;使用数字修改&quot;&gt;使用数字修改&lt;/h3&gt;
+&lt;p&gt;更简单的方法：使用数字表示权限部分的读、写、执行权限。
+数字设定的语法格式&lt;/p&gt;
+&lt;blockquote&gt;
+  &lt;p&gt;chmod [mode] 文件名&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;这里关键是mode的取值，我们将rwx看成二进制数，如果有则有1表示，没有则有0表示，那么&lt;code class=&quot;highlighter-rouge&quot;&gt;rwx r-x r--&lt;/code&gt;则可以表示成为：&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;111 101 100&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;再将其每三位转换成为一个十进制数，就是754。 
+可以看出，三个数字从前到后就分别表示u、g、o三种用户的访问权限。&lt;/p&gt;
+
+&lt;p&gt;再如我们给build.sh这些权限：&lt;/p&gt;
+
+&lt;p&gt;～|自己 | 同组用户 | 其他用户 
+—|—|—|—
+可读 | 是 | 是 | 是 
+可写 | 是 | 是 |  /
+可执行|/|/|/
+那么，我们先根据上表得到权限串为：&lt;strong&gt;rw-rw-r–&lt;/strong&gt;，那么转换成二进制数就是110 110 100，再每三位转换成为一个十进制数，就得到664，因此我们执行命令：&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;chmod 664 build.sh&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;我们也可以通过下面的图来直接看出权限之间的关系 
+数字和权限对应关系如图：&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;media/15209931960477/1508342093.png&quot; alt=&quot;1508342093&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;即：1.可执行，2.可写，4.可读；相交部分就是同时拥有权限。0表示没有权限&lt;/p&gt;
+
+&lt;hr /&gt;
+&lt;p&gt;例子
+—-&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;修改&lt;strong&gt;所有用户&lt;/strong&gt;拥有&lt;strong&gt;读写执行&lt;/strong&gt;的所有权限：&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;biubiubiu:Desktop jsyl$ chmod 777 build.sh
+biubiubiu:Desktop jsyl$ ls -l build.sh
+-rwxrwxrwx  1 jsyl  staff  0  3 14 10:09 build.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;====
+2.user拥有所有权限，group没有执行权限，other没有任何权限&lt;/p&gt;
+
+&lt;div class=&quot;language-shell highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;biubiubiu:Desktop jsyl&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;chmod &lt;/span&gt;760 build.sh
+biubiubiu:Desktop jsyl&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-l&lt;/span&gt; build.sh
+&lt;span class=&quot;nt&quot;&gt;-rwxrw----&lt;/span&gt;  1 jsyl  staff  0  3 14 10:09 build.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;补充一点，有时候需要递归修改目录文件及其子目录中的文件类型，可以使用 -R 选项。&lt;/p&gt;
+
+&lt;p&gt;参考：
+    &lt;a href=&quot;http://blog.csdn.net/growing_tree/article/details/78289707&quot;&gt;http://blog.csdn.net/growing_tree/article/details/78289707&lt;/a&gt;
+    &lt;a href=&quot;http://www.7do.net/resources-11706-1-1.html&quot;&gt;http://www.7do.net/resources-11706-1-1.html&lt;/a&gt;&lt;/p&gt;
+
+</description>
+        <pubDate>Wed, 10 Jul 2019 00:00:00 +0800</pubDate>
+        <link>http://localhost:4000/2019/07/chmod/</link>
+        <guid isPermaLink="true">http://localhost:4000/2019/07/chmod/</guid>
+        
+        <category>Mac，权限</category>
+        
+        
+      </item>
+    
+  </channel>
+</rss>
